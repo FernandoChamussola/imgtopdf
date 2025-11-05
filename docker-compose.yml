@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build: ./backend
@@ -8,14 +6,21 @@ services:
       - PORT=4000
       - NODE_ENV=production
     networks:
+      - web
       - img2pdf-network
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.img2pdf-api.rule=Host(`img2pdf.duckdns.org`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.img2pdf-api.entrypoints=web"
+      - "traefik.http.services.img2pdf-api.loadbalancer.server.port=4000"
+      - "traefik.docker.network=web"
 
   frontend:
     build: ./frontend
     container_name: img2pdf-frontend
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:4000
+      - NEXT_PUBLIC_API_URL=http://img2pdf.duckdns.org
     depends_on:
       - backend
     networks:
@@ -28,6 +33,7 @@ services:
       - "traefik.http.routers.img2pdf.entrypoints=web"
       - "traefik.http.services.img2pdf.loadbalancer.server.port=3000"
       - "traefik.docker.network=web"
+      - "traefik.http.routers.img2pdf.priority=1"
 
 networks:
   web:
