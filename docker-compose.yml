@@ -25,9 +25,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.img2pdf.rule=Host(`img2pdf.duckdns.org`)"
-      - "traefik.http.routers.img2pdf.entrypoints=websecure"
-      - "traefik.http.routers.img2pdf.tls=true"
-      - "traefik.http.routers.img2pdf.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.img2pdf.entrypoints=web"
       - "traefik.http.services.img2pdf.loadbalancer.server.port=3000"
       - "traefik.docker.network=web"
 
