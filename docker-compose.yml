@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: img2pdf-backend
+    environment:
+      - PORT=4000
+      - NODE_ENV=production
+    networks:
+      - img2pdf-network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: img2pdf-frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:4000
+    depends_on:
+      - backend
+    networks:
+      - web
+      - img2pdf-network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.img2pdf.rule=Host(`img2pdf.duckdns.org`)"
+      - "traefik.http.routers.img2pdf.entrypoints=websecure"
+      - "traefik.http.routers.img2pdf.tls=true"
+      - "traefik.http.routers.img2pdf.tls.certresolver=letsencrypt"
+      - "traefik.http.services.img2pdf.loadbalancer.server.port=3000"
+      - "traefik.docker.network=web"
+
+networks:
+  web:
+    external: true
+  img2pdf-network:
+    driver: bridge
